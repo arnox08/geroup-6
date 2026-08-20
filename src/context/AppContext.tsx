@@ -113,7 +113,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('dbt_schedules', JSON.stringify(schedules));
   }, [schedules]);
 
-  const googleSheetsUrl = 'https://docs.google.com/spreadsheets/d/1Qrvn_Xm5uwuLSSFhTcMj88r3UwS7sXOgbj3xlCqULbc/edit?usp=sharing';
+  const googleSheetsUrl = 'https://docs.google.com/spreadsheets/d/1sKz0rp5V8bQ_tI_dDZqAv-ERDa1dOD3yFOIkus85KWo/edit?usp=sharing';
 
   const [appsScriptUrl, setAppsScriptUrlState] = useState<string>(() => {
     return localStorage.getItem('dbt_apps_script_url') || '';
@@ -156,32 +156,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const syncUserToGoogleSheet = async (userPayload: any) => {
     try {
-      if (!appsScriptUrl) {
-        console.info('Apps Script Web App URL is not set yet. User saved in application memory.');
-        return { success: true, localOnly: true };
-      }
+      const timestamp = new Date().toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'medium' });
+      const roleThai = userPayload.role === 'admin' ? 'ผู้ดูแลระบบ (Admin)' : 'นักศึกษา/บุคลากร';
+      const spreadsheetId = '1sKz0rp5V8bQ_tI_dDZqAv-ERDa1dOD3yFOIkus85KWo';
 
       const formData = new URLSearchParams();
+      formData.append('action', 'register_user');
+      formData.append('timestamp', timestamp);
       formData.append('code', userPayload.code || '');
       formData.append('name', userPayload.name || '');
       formData.append('role', userPayload.role || 'student');
-      formData.append('department', userPayload.department || '');
-      formData.append('level', userPayload.level || '');
+      formData.append('role_th', roleThai);
+      formData.append('department', userPayload.department || 'เทคโนโลยีธุรกิจดิจิทัล');
+      formData.append('level', userPayload.level || 'ปวส.1/1');
       formData.append('email', userPayload.email || '');
       formData.append('phone', userPayload.phone || '');
       formData.append('password', userPayload.password || '');
-      formData.append('timestamp', new Date().toLocaleString('th-TH'));
+      formData.append('status', 'ใช้งานได้ (Active)');
+      formData.append('spreadsheet_id', spreadsheetId);
 
-      await fetch(appsScriptUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData.toString(),
-      });
+      // If user has provided custom Apps Script Web App URL
+      if (appsScriptUrl && appsScriptUrl.trim().length > 0) {
+        await fetch(appsScriptUrl.trim(), {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formData.toString(),
+        });
+        return { success: true, method: 'apps_script' };
+      }
 
-      return { success: true };
+      console.info(`Data prepared 100% for Google Sheet (${spreadsheetId}):`, Object.fromEntries(formData.entries()));
+      return { success: true, localOnly: true, payload: Object.fromEntries(formData.entries()) };
     } catch (err: any) {
       console.error('Failed to post to Apps Script:', err);
       return { success: false, error: err?.message || 'Sync error' };
@@ -190,7 +198,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const fetchUsersFromGoogleSheet = async () => {
     try {
-      const csvUrl = 'https://docs.google.com/spreadsheets/d/1Qrvn_Xm5uwuLSSFhTcMj88r3UwS7sXOgbj3xlCqULbc/gviz/tq?tqx=out:csv';
+      const csvUrl = 'https://docs.google.com/spreadsheets/d/1sKz0rp5V8bQ_tI_dDZqAv-ERDa1dOD3yFOIkus85KWo/gviz/tq?tqx=out:csv';
       const response = await fetch(csvUrl);
       if (!response.ok) {
         throw new Error('ไม่สามารถดึงข้อมูลจาก Google Sheet ได้');
@@ -228,6 +236,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               avatar: role === 'admin'
                 ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
                 : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+              createdAt: new Date().toLocaleDateString('th-TH'),
             });
           }
         }

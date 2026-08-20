@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ShieldCheck, UserCheck, Lock, Unlock, AlertTriangle, ArrowRight, LogOut, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, UserCheck, Lock, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 export const AccessControlBanner: React.FC = () => {
-  const { currentUser, logout, switchUserDemo, users } = useApp();
+  const { currentUser } = useApp();
   const [expanded, setExpanded] = useState(false);
 
   if (!currentUser) return null;
@@ -38,7 +38,7 @@ export const AccessControlBanner: React.FC = () => {
               ) : (
                 <>
                   <UserCheck className="w-4 h-4 text-slate-950" />
-                  <span>ระดับสิทธิ์: นักศึกษา / ผู้ใช้ทั่วไป (USER LEVEL)</span>
+                  <span>ระดับสิทธิ์: บัญชีผู้ใช้งาน ({currentUser.name})</span>
                 </>
               )}
             </span>
@@ -47,39 +47,18 @@ export const AccessControlBanner: React.FC = () => {
               {isAdmin ? (
                 <span>เข้าถึงศูนย์ควบคุมอนุมัติ จัดการตารางเรียน จัดการห้อง และ Google Sheets</span>
               ) : (
-                <span>เข้าถึงระบบค้นหาผังห้อง จองเครื่องคอมพิวเตอร์ และนำเข้าข้อมูลช่องที่ 2</span>
+                <span>เข้าถึงระบบค้นหาผังห้อง จองเครื่องคอมพิวเตอร์ และดูข้อมูลเฉพาะของตนเอง</span>
               )}
             </div>
           </div>
 
-          {/* Right: Actions & Access Details Toggle */}
+          {/* Right: Security info */}
           <div className="flex items-center justify-between md:justify-end gap-2 shrink-0">
             <button
               onClick={() => setExpanded(!expanded)}
               className="text-[11px] underline text-slate-300 hover:text-white font-bold flex items-center gap-1"
             >
-              <span>{expanded ? 'ซ่อนขอบเขตสิทธิ์' : 'ตรวจสอบขอบเขตสิทธิ์เข้าถึง'}</span>
-            </button>
-
-            <div className="h-4 w-px bg-slate-700 mx-1 hidden sm:block" />
-
-            {/* Switch Account Quick Action */}
-            <button
-              onClick={() => {
-                const targetRole = isAdmin ? 'student' : 'admin';
-                const targetUser = users.find((u) => u.role === targetRole);
-                if (targetUser) {
-                  switchUserDemo(targetUser.id);
-                }
-              }}
-              className={`px-3 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1.5 transition-all shadow-xs ${
-                isAdmin
-                  ? 'bg-white/10 hover:bg-white/20 text-amber-300 border border-amber-500/30'
-                  : 'bg-white/10 hover:bg-white/20 text-purple-200 border border-purple-400/30'
-              }`}
-            >
-              <Unlock className="w-3.5 h-3.5" />
-              <span>{isAdmin ? 'สลับเป็นสิทธิ์นักศึกษา' : 'สลับเป็นสิทธิ์ผู้ดูแลระบบ (Admin)'}</span>
+              <span>{expanded ? 'ซ่อนขอบเขตความปลอดภัย' : 'ตรวจสอบขอบเขตความปลอดภัย'}</span>
             </button>
           </div>
         </div>
@@ -91,7 +70,7 @@ export const AccessControlBanner: React.FC = () => {
             <div className="p-3 bg-white/5 rounded-2xl border border-white/10 space-y-1.5">
               <div className="font-bold text-emerald-300 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>สิ่งที่ได้รับอนุญาตตามสิทธิ์ ({currentUser.role.toUpperCase()}):</span>
+                <span>ขอบเขตข้อมูลที่อนุญาตให้เข้าถึง:</span>
               </div>
               <ul className="list-disc list-inside text-slate-200 space-y-1 pl-1">
                 {isAdmin ? (
@@ -100,15 +79,13 @@ export const AccessControlBanner: React.FC = () => {
                     <li>ล็อกตารางเรียนประจำสาขาสำหรับรายวิชาต่างๆ</li>
                     <li>เพิ่ม แก้ไข หรือปิดปรับปรุงห้องปฏิบัติการและเครื่อง PC</li>
                     <li>บริหารจัดการสมาชิก และเชื่อมตั้งค่า Google Sheets API</li>
-                    <li>ส่งข้อมูลรายละเอียดช่องที่ 2 ผ่าน Google Apps Script</li>
                   </>
                 ) : (
                   <>
                     <li>ตรวจสอบผังห้อง และสถานะว่าง/ใช้งาน ของเครื่อง PC แบบ Real-time</li>
                     <li>ยื่นเรื่องขอจองเครื่องคอมพิวเตอร์ตามรอบเวลาที่ต้องการ</li>
-                    <li>ดูและพิมพ์ใบบันทึกการจอง (Booking Slip)</li>
-                    <li>แจ้งอุบัติเหตุ/คอมพิวเตอร์ชำรุด (Defect Report)</li>
-                    <li>นำเข้าข้อมูลรายละเอียดช่องที่ 2 ผ่าน Google Apps Script</li>
+                    <li>ดูและพิมพ์ใบบันทึกการจอง (Booking Slip) เฉพาะของตนเอง</li>
+                    <li>ดูข้อมูลโปรไฟล์และประวัติการทำรายการเฉพาะบัญชีตนเอง</li>
                   </>
                 )}
               </ul>
@@ -118,19 +95,19 @@ export const AccessControlBanner: React.FC = () => {
             <div className="p-3 bg-white/5 rounded-2xl border border-white/10 space-y-1.5">
               <div className="font-bold text-amber-300 flex items-center gap-1.5">
                 <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>ข้อจำกัดและขอบเขตการรักษาความปลอดภัย:</span>
+                <span>การคุ้มครองความปลอดภัยและความเป็นส่วนตัว:</span>
               </div>
               <ul className="list-disc list-inside text-slate-300 space-y-1 pl-1">
                 {isAdmin ? (
                   <>
                     <li>การแก้ไขข้อมูลตารางเรียนและการปิดห้องจะมีผลกระทบกับระบบทันที</li>
-                    <li>ควรตรวจสอบสิทธิ์บัญชีก่อนทำการอนุมัติรายการจอง</li>
+                    <li>ควรตรวจสอบความถูกต้องก่อนอนุมัติหรือปฏิเสธรายการ</li>
                   </>
                 ) : (
                   <>
-                    <li><strong className="text-amber-300">ไม่สามารถ</strong> เข้าถึงเมนูอนุมัติหรือเปลี่ยนสถานะการจองได้</li>
-                    <li><strong className="text-amber-300">ไม่สามารถ</strong> เพิ่ม ลบ หรือปิดปรับปรุงห้องคอมพิวเตอร์ได้</li>
-                    <li><strong className="text-amber-300">ไม่สามารถ</strong> แก้ไขตารางเรียนหรือการตั้งค่า Google Sheets ได้</li>
+                    <li><strong className="text-amber-300">ระบบรักษาความปลอดภัย:</strong> ป้องกันไม่ให้แสดงข้อมูลของผู้ดูแลระบบหรือผู้อื่น</li>
+                    <li><strong className="text-amber-300">ข้อมูลส่วนบุคคล:</strong> แสดงเฉพาะประวัติและข้อมูลบัญชีที่กำลังเข้าสู่ระบบเท่านั้น</li>
+                    <li><strong className="text-amber-300">ความปลอดภัยเว็บแอป:</strong> ไม่อนุญาตให้แก้ไขหรือเข้าถึงส่วนการบริหารจัดการ Admin</li>
                   </>
                 )}
               </ul>

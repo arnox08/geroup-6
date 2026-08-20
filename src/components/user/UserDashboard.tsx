@@ -22,13 +22,20 @@ import {
   UserCheck,
   ChevronRight,
   ShieldAlert,
-  FileSpreadsheet
+  FileSpreadsheet,
+  User as UserIcon,
+  Mail,
+  Phone,
+  ShieldCheck,
+  CheckCircle2,
+  Lock,
+  Sparkles
 } from 'lucide-react';
 
 export const UserDashboard: React.FC = () => {
   const { currentUser, rooms, computers, bookings, createBooking, cancelBooking, schedules } = useApp();
   
-  const [activeTab, setActiveTab] = useState<'map' | 'form' | 'history' | 'details'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'form' | 'history' | 'profile' | 'details'>('map');
   const [selectedRoomId, setSelectedRoomId] = useState<string>(rooms[0]?.id || 'rm-401');
   
   // Floor Plan PC Selection for Booking
@@ -178,6 +185,18 @@ export const UserDashboard: React.FC = () => {
             </button>
 
             <button
+              onClick={() => setActiveTab('profile')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeTab === 'profile'
+                  ? 'bg-white text-purple-900 shadow-md'
+                  : 'text-white hover:bg-white/10'
+              }`}
+            >
+              <UserIcon className="w-4 h-4" />
+              <span>ข้อมูลผู้ใช้งานของฉัน</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('details')}
               className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                 activeTab === 'details'
@@ -186,7 +205,7 @@ export const UserDashboard: React.FC = () => {
               }`}
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-300" />
-              <span>ช่องข้อมูลที่ 2 (นำเข้ารายละเอียด Apps Script)</span>
+              <span>ช่องข้อมูลที่ 2</span>
             </button>
           </div>
         </div>
@@ -662,7 +681,162 @@ export const UserDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 4: APPS SCRIPT DETAIL IMPORTER (FIELD 2) */}
+      {/* TAB 4: MY USER PROFILE (STRICT ISOLATION - ONLY LOGGED IN USER DATA) */}
+      {activeTab === 'profile' && currentUser && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          
+          {/* Main Profile Card */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="p-6 sm:p-8 bg-gradient-to-r from-purple-950 via-indigo-900 to-slate-900 text-white relative">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
+                    alt={currentUser.name}
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-purple-400 shadow-lg"
+                  />
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-bold border border-emerald-500/30 mb-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>สถานะ: บัญชีผู้ใช้งานที่กำลังใช้งาน (Active User)</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-black text-white">
+                      {currentUser.name}
+                    </h2>
+                    <p className="text-xs text-purple-200 mt-0.5">
+                      {currentUser.department} • {currentUser.level || 'นักศึกษา'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <span className="px-3.5 py-1.5 rounded-xl bg-white/10 text-white text-xs font-mono font-bold border border-white/20">
+                    รหัสประจำตัว: {currentUser.code}
+                  </span>
+                  <span className="text-[11px] text-purple-300 font-medium">
+                    ลงทะเบียนเมื่อ: {currentUser.createdAt || 'ระบบปัจจุบัน'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Field Details */}
+            <div className="p-6 sm:p-8 space-y-6">
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                ข้อมูลส่วนบุคคลของบัญชีที่ใช้งาน (Personal Account Details)
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                
+                {/* Field 1: Name */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                  <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mb-1">
+                    <UserIcon className="w-3.5 h-3.5 text-purple-600" />
+                    <span>ชื่อ-นามสกุล</span>
+                  </div>
+                  <div className="text-sm font-bold text-slate-800">{currentUser.name}</div>
+                </div>
+
+                {/* Field 2: Student Code */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                  <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mb-1">
+                    <Lock className="w-3.5 h-3.5 text-purple-600" />
+                    <span>รหัสสถาบัน / รหัสประจำตัว</span>
+                  </div>
+                  <div className="text-sm font-mono font-black text-purple-900">{currentUser.code}</div>
+                </div>
+
+                {/* Field 3: Role */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                  <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mb-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>สิทธิ์การใช้งานในระบบ</span>
+                  </div>
+                  <div className="text-sm font-bold text-emerald-700">
+                    นักศึกษา / ผู้ใช้งานทั่วไป (User)
+                  </div>
+                </div>
+
+                {/* Field 4: Department */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                  <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mb-1">
+                    <Building className="w-3.5 h-3.5 text-purple-600" />
+                    <span>สาขาวิชา / แผนกวิชา</span>
+                  </div>
+                  <div className="text-sm font-bold text-slate-800">{currentUser.department}</div>
+                </div>
+
+                {/* Field 5: Level */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                  <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mb-1">
+                    <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                    <span>ระดับชั้น / กลุ่มเรียน</span>
+                  </div>
+                  <div className="text-sm font-bold text-slate-800">{currentUser.level || 'นักศึกษา'}</div>
+                </div>
+
+                {/* Field 6: Email */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                  <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mb-1">
+                    <Mail className="w-3.5 h-3.5 text-purple-600" />
+                    <span>อีเมลติดต่อ</span>
+                  </div>
+                  <div className="text-sm font-bold text-slate-800 truncate">{currentUser.email || '-'}</div>
+                </div>
+
+                {/* Field 7: Phone */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                  <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mb-1">
+                    <Phone className="w-3.5 h-3.5 text-purple-600" />
+                    <span>เบอร์โทรศัพท์</span>
+                  </div>
+                  <div className="text-sm font-bold text-slate-800">{currentUser.phone || '-'}</div>
+                </div>
+
+                {/* Field 8: Total User Bookings */}
+                <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200">
+                  <div className="text-[11px] text-purple-700 font-medium flex items-center gap-1.5 mb-1">
+                    <Clock className="w-3.5 h-3.5 text-purple-600" />
+                    <span>ประวัติการจองของฉัน</span>
+                  </div>
+                  <div className="text-sm font-bold text-purple-950">
+                    รวมทั้งสิ้น {myBookings.length} รายการ
+                  </div>
+                </div>
+
+                {/* Field 9: System Status */}
+                <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200">
+                  <div className="text-[11px] text-emerald-700 font-medium flex items-center gap-1.5 mb-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>สถานะความพร้อมใช้งาน</span>
+                  </div>
+                  <div className="text-sm font-bold text-emerald-900">
+                    เปิดใช้งานปกติ (Active)
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Security Privacy Assurance Notice */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white border border-slate-700 flex items-start gap-3 text-xs">
+                <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <div className="font-bold text-emerald-300">
+                    ระบบการแยกส่วนข้อมูลและความปลอดภัยสูงสุด (Security & Privacy Guarantee)
+                  </div>
+                  <p className="text-slate-300 leading-relaxed">
+                    หน้านี้ถูกตั้งค่าให้แสดงเฉพาะข้อมูลของบัญชีผู้ใช้งานที่กำลังเข้าสู่ระบบ (<span className="text-white font-bold">{currentUser.name}</span>) เท่านั้น โดยระบบจะ<strong>ไม่แสดงข้อมูลของผู้ดูแลระบบ (Admin) หรือข้อมูลของผู้ใช้งานคนอื่น</strong> เพื่อคุ้มครองความปลอดภัยของระบบเว็บแอปและความเป็นส่วนตัวของสมาชิกทุกคน
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* TAB 5: APPS SCRIPT DETAIL IMPORTER (FIELD 2) */}
       {activeTab === 'details' && <AppsScriptDetailImporter />}
 
       {/* Print Slip Modal */}

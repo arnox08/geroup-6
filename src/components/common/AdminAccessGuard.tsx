@@ -45,22 +45,12 @@ export const AdminAccessGuard: React.FC<AdminAccessGuardProps> = ({ children }) 
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            {adminUser && (
-              <button
-                onClick={() => switchUserDemo(adminUser.id)}
-                className="w-full sm:w-auto px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                <span>สลับเป็นบัญชี Admin ({adminUser.name})</span>
-              </button>
-            )}
-
             <button
               onClick={() => logout()}
-              className="w-full sm:w-auto px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
             >
               <LogOut className="w-4 h-4" />
-              <span>ออกจากระบบกลับหน้าล็อกอิน</span>
+              <span>ออกจากระบบเพื่อเข้าสู่ระบบใหม่</span>
             </button>
           </div>
         </div>

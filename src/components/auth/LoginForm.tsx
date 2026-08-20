@@ -258,37 +258,10 @@ export const LoginForm: React.FC = () => {
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder={portalRole === 'admin' ? 'กรอก admin' : 'เช่น STD6601'}
+                  placeholder={portalRole === 'admin' ? 'กรอกรหัสผู้ดูแลระบบ' : 'เช่น STD6601'}
                   className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent font-medium bg-slate-50/50 transition-all"
                   required
                 />
-              </div>
-
-              {/* Quick Select Chips from Google Sheet users */}
-              <div className="mt-2 flex flex-wrap items-center gap-1 text-[11px]">
-                <span className="text-slate-400 font-semibold text-[10px]">เลือกใช้รหัสจาก Sheet:</span>
-                {users
-                  .filter((u) => (portalRole === 'admin' ? u.role === 'admin' : u.role !== 'admin'))
-                  .slice(0, 5)
-                  .map((u) => (
-                    <button
-                      key={u.id}
-                      type="button"
-                      onClick={() => {
-                        setCode(u.code);
-                        setPassword(u.role === 'admin' ? '11223344' : 'password');
-                      }}
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all ${
-                        code.toUpperCase() === u.code.toUpperCase()
-                          ? portalRole === 'admin'
-                            ? 'bg-amber-600 text-slate-950 shadow-2xs font-black'
-                            : 'bg-purple-700 text-white shadow-2xs'
-                          : 'bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-900 border border-slate-200'
-                      }`}
-                    >
-                      {u.code} ({u.name})
-                    </button>
-                  ))}
               </div>
             </div>
 

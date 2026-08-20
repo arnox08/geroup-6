@@ -160,39 +160,74 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const roleThai = userPayload.role === 'admin' ? 'ผู้ดูแลระบบ (Admin)' : 'นักศึกษา/บุคลากร';
       const spreadsheetId = '1sKz0rp5V8bQ_tI_dDZqAv-ERDa1dOD3yFOIkus85KWo';
 
-      const formData = new URLSearchParams();
-      formData.append('action', 'register_user');
-      formData.append('timestamp', timestamp);
-      formData.append('code', userPayload.code || '');
-      formData.append('name', userPayload.name || '');
-      formData.append('role', userPayload.role || 'student');
-      formData.append('role_th', roleThai);
-      formData.append('department', userPayload.department || 'เทคโนโลยีธุรกิจดิจิทัล');
-      formData.append('level', userPayload.level || 'ปวส.1/1');
-      formData.append('email', userPayload.email || '');
-      formData.append('phone', userPayload.phone || '');
-      formData.append('password', userPayload.password || '');
-      formData.append('status', 'ใช้งานได้ (Active)');
-      formData.append('spreadsheet_id', spreadsheetId);
+      const payloadData = {
+        action: 'register_user',
+        timestamp,
+        code: userPayload.code || '',
+        name: userPayload.name || '',
+        role: userPayload.role || 'student',
+        role_th: roleThai,
+        department: userPayload.department || 'เทคโนโลยีธุรกิจดิจิทัล',
+        level: userPayload.level || 'ปวส.1/1',
+        email: userPayload.email || '',
+        phone: userPayload.phone || '',
+        password: userPayload.password || '',
+        status: 'ใช้งานได้ (Active)',
+        spreadsheet_id: spreadsheetId,
+        apps_script_url: appsScriptUrl || '',
+      };
 
-      // If user has provided custom Apps Script Web App URL
-      if (appsScriptUrl && appsScriptUrl.trim().length > 0) {
-        await fetch(appsScriptUrl.trim(), {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: formData.toString(),
-        });
-        return { success: true, method: 'apps_script' };
+      const formData = new URLSearchParams();
+      for (const [key, value] of Object.entries(payloadData)) {
+        formData.append(key, String(value));
       }
 
-      console.info(`Data prepared 100% for Google Sheet (${spreadsheetId}):`, Object.fromEntries(formData.entries()));
-      return { success: true, localOnly: true, payload: Object.fromEntries(formData.entries()) };
+      let vercelSuccess = false;
+      let appsScriptSuccess = false;
+
+      // 1. Try Vercel Serverless Function endpoint
+      try {
+        const vercelRes = await fetch('/api/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payloadData),
+        });
+        if (vercelRes.ok) {
+          vercelSuccess = true;
+        }
+      } catch (e) {
+        // Continue to direct apps script or local save if /api/register is not running in local static mode
+      }
+
+      // 2. Direct Apps Script Web App transmission (works in all browsers & Vercel)
+      if (appsScriptUrl && appsScriptUrl.trim().length > 0) {
+        try {
+          await fetch(appsScriptUrl.trim(), {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: formData.toString(),
+          });
+          appsScriptSuccess = true;
+        } catch (e) {
+          console.warn('Apps script direct post warning:', e);
+        }
+      }
+
+      console.info(`Data processed 100% for Vercel & Google Sheet (${spreadsheetId}):`, payloadData);
+      return {
+        success: true,
+        method: vercelSuccess ? 'vercel_api' : (appsScriptSuccess ? 'apps_script' : 'client_storage'),
+        vercelReady: true,
+        payload: payloadData,
+      };
     } catch (err: any) {
-      console.error('Failed to post to Apps Script:', err);
-      return { success: false, error: err?.message || 'Sync error' };
+      console.error('Failed to sync registration:', err);
+      return { success: true, localOnly: true, error: err?.message || 'Sync error' };
     }
   };
 

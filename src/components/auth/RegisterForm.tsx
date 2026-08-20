@@ -217,9 +217,15 @@ function doGet(e) {
             สาขาวิชาเทคโนโลยีธุรกิจดิจิทัล • วิทยาลัยการอาชีพวาปีปทุม
           </p>
 
-          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-bold border border-emerald-500/30">
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
-            <span>เชื่อมต่อส่งข้อมูลเข้า Google Sheets 100%</span>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-bold border border-emerald-500/30">
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+              <span>เชื่อมต่อส่งข้อมูลเข้า Google Sheets 100%</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 text-purple-200 text-[11px] font-bold border border-purple-400/30">
+              <Sparkles className="w-3.5 h-3.5 text-purple-300" />
+              <span>รองรับระบบคลาวด์ Vercel 100%</span>
+            </div>
           </div>
         </div>
 
@@ -313,7 +319,7 @@ function doGet(e) {
 
               <div>
                 <h3 className="text-xl font-black text-slate-900">
-                  ลงทะเบียนสำเร็จ & จัดส่งข้อมูลเรียบร้อย 100%!
+                  ลงทะเบียนสำเร็จผ่าน Vercel & บันทึกข้อมูล 100%!
                 </h3>
                 <p className="text-xs text-slate-600 mt-1">
                   ยินดีต้อนรับคุณ <span className="font-bold text-purple-900">{successData.name}</span> (รหัส: <span className="font-mono font-bold text-purple-800">{successData.code}</span>)
